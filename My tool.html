@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Far Too Curious | Advanced Workbench</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--panel2:#17243a;--line:#2b3b55;--text:#e8eef8;--muted:#9fb0c8;--accent:#65d6c4;--accent2:#78a9ff;--warn:#f6c66b;--bad:#ff8585;--good:#7ed6a5}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#09111e,#101b2d 55%,#0b1422);color:var(--text);font:14px/1.5 Inter,Segoe UI,Arial,sans-serif}
+header{padding:25px clamp(16px,4vw,48px) 18px;border-bottom:1px solid var(--line);background:#0b1422dd}
+.eyebrow{color:var(--accent);font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase}
+h1{margin:5px 0;font-size:clamp(24px,4vw,36px);letter-spacing:-.7px}header p{margin:4px 0;color:var(--muted);max-width:850px}
+main{padding:22px clamp(12px,3vw,36px) 48px;max-width:1700px;margin:auto}
+.notice{border:1px solid #37645f;background:#102b2b;padding:12px 15px;border-radius:12px;color:#c8f5eb;margin-bottom:18px}
+.toolbar,.panel{background:linear-gradient(160deg,var(--panel),#101a2b);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 8px 28px #0002}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+input,select,button{font:inherit}input[type=file]{max-width:100%;color:var(--muted)}
+button,.filelabel{border:1px solid #3b5878;background:#1b3150;color:var(--text);padding:9px 13px;border-radius:9px;cursor:pointer;font-weight:650}
+button:hover,.filelabel:hover{border-color:var(--accent);background:#203c59}button.primary{background:#17665d;border-color:#288f82}button.danger{border-color:#75414a;background:#3c202b}button:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select{background:#0b1525;border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;min-width:0}
+input[type=checkbox]{accent-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.metric{background:#142239;border:1px solid var(--line);border-radius:12px;padding:13px 15px}.metric small{color:var(--muted);display:block}.metric strong{font-size:23px;display:block;margin-top:3px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h2{font-size:18px;margin:0}h3{font-size:15px;margin:0 0 10px;color:#cbd8ea}.muted{color:var(--muted)}.tiny{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.tab{background:#111e31}.tab.active{background:#1a5b58;border-color:#58b9a9}
+.tabpane{display:none}.tabpane.active{display:block}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px;max-height:560px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px}
+th,td{padding:8px 10px;border-bottom:1px solid #26364e;border-right:1px solid #223149;text-align:left;vertical-align:top;max-width:360px}
+th{position:sticky;top:0;background:#1a2a42;z-index:2;color:#dce8f8;white-space:nowrap}
+th button{background:transparent;border:0;padding:0;color:inherit;font-weight:750}
+td{white-space:pre-wrap;overflow-wrap:anywhere}td[contenteditable=true]{cursor:text;background:#12253a}td[contenteditable=true]:focus{outline:2px solid var(--accent);background:#17364a}
+tr:nth-child(even) td{background-color:#ffffff05}
+.controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.controls label{color:var(--muted);font-size:12px}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:750;background:#26374e;color:#cbd9ea}
+.badge.good{background:#163d35;color:#a9f0d3}.badge.warn{background:#49391d;color:#ffe0a0}.badge.bad{background:#492630;color:#ffb7c0}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.checklist{display:flex;gap:12px;flex-wrap:wrap}.checklist label{display:flex;gap:6px;align-items:center;color:var(--muted)}
+canvas{width:100%;height:260px;background:#0b1525;border:1px solid var(--line);border-radius:10px}
+.statstable{width:100%;min-width:0}.statstable td,.statstable th{max-width:none}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+#status{margin-left:auto;color:var(--muted);font-size:12px}
+footer{color:var(--muted);text-align:center;padding:20px;font-size:12px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(130px,1fr))}.twocol{grid-template-columns:1fr}}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr}.toolbar>*{width:100%}#status{margin:0}}
+[hidden]{display:none!important} #advancedOutput table{min-width:0;width:100%} #advancedOutput td button{color:var(--accent);text-align:left} #advancedScope{font-variant-numeric:tabular-nums} summary{cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+ <div class="eyebrow">TGF • Shipboard analytical systems</div>
+ <h1>Far Too Curious — Advanced Workbench</h1>
+ <p>Reusable CSV inspection, data quality, descriptive statistics, outlier analysis and auditable export. All processing runs locally in this browser.</p>
+</header>
+<main>
+ <div class="notice"><strong>Data integrity:</strong> The uploaded source is kept unchanged in memory. Editing and cleaning operate on a separate working copy. Nothing is uploaded to a server.</div>
+ <section class="toolbar">
+  <label class="filelabel">Upload CSV <input id="fileInput" type="file" accept=".csv,text/csv" hidden></label>
+  <button id="resetBtn" disabled>Reset working copy</button>
+  <button id="exportBtn" class="primary" disabled>Export cleaned CSV</button>
+  <button id="logBtn" disabled>Export change log</button>
+  <span id="status">Awaiting CSV file…</span>
+ </section>
+ <div class="grid">
+  <div class="metric"><small>Working rows</small><strong id="rowCount">—</strong></div>
+  <div class="metric"><small>Columns</small><strong id="colCount">—</strong></div>
+  <div class="metric"><small>Missing cells</small><strong id="missingCount">—</strong></div>
+  <div class="metric"><small>Exact duplicate rows</small><strong id="duplicateCount">—</strong></div>
+ </div>
+ <nav class="tabs">
+  <button class="tab active" data-tab="records">T1–T2 • Records</button>
+  <button class="tab" data-tab="quality">T3 • Data quality</button>
+  <button class="tab" data-tab="statistics">T4 • Statistics</button>
+  <button class="tab" data-tab="outliers">T5 • Charts & outliers</button>
+  <button class="tab" data-tab="explore">Explore</button>
+  <button class="tab" data-tab="advanced">Advanced analysis</button>
+  <button class="tab" data-tab="export">T6 • Export & audit</button>
+ </nav>
+
+ <section id="records" class="tabpane active panel">
+  <div class="sectionhead"><h2>Records & schema</h2><span class="badge" id="recordBadge">No data loaded</span></div>
+  <p class="tiny">Suggested types are inferred from the uploaded values. You can change a column's analysis type in the schema table. Click a record cell to edit it; edits are logged.</p>
+  <h3>Column types</h3>
+  <div class="tablewrap" style="max-height:230px;margin-bottom:14px"><table id="schemaTable"><thead><tr><th>Column</th><th>Suggested type</th><th>Analysis type</th><th>Non-empty</th></tr></thead><tbody><tr><td colspan="4" class="empty">Upload a CSV to inspect its columns.</td></tr></tbody></table></div>
+  <div class="controls">
+   <input id="searchInput" type="text" placeholder="Search all fields…" style="flex:1;min-width:210px" disabled>
+   <label>Filter column <select id="filterColumn" disabled><option value="">All columns</option></select></label>
+   <input id="filterValue" type="text" placeholder="Contains…" disabled>
+   <button id="clearFilter" disabled>Clear</button>
+   <label>Rows/page <select id="pageSize"><option>25</option><option>50</option><option>100</option></select></label>
+  </div>
+  <details><summary>Combine filter conditions</summary>
+  <div class="controls"><label>Field <select id="conditionColumn"></select></label>
+  <label>Comparison <select id="operator"><option>contains</option><option>equals</option><option>at least</option><option>at most</option><option>blank</option></select></label>
+  <label>Value <input id="operand"></label><button id="addCondition">Add condition</button></div>
+  <div id="conditions" class="controls"></div></details>
+  <div class="controls"><button id="subset" disabled>Export matching rows</button>
+  <label>Edit reason <input id="editReason" placeholder="Reason for a cell correction"></label></div>
+  <div class="sectionhead"><h3>Data preview</h3><span class="tiny">Descriptions and notes are displayed in full. Edit cells directly.</span></div>
+  <div class="tablewrap" id="dataTableWrap"><div class="empty">Upload a CSV file to begin.</div></div>
+  <div class="controls"><button id="prevPage" disabled>← Previous</button><span id="pageInfo" class="tiny">Page 0 of 0</span><button id="nextPage" disabled>Next →</button></div>
+ </section>
+
+ <section id="quality" class="tabpane panel">
+  <div class="sectionhead"><h2>Data quality inspection</h2><span class="badge">T3</span></div>
+  <div class="controls">
+   <label>ID column <select id="idColumn" disabled><option value="">Select an ID field…</option></select></label>
+   <button id="scanBtn" disabled>Run quality scan</button>
+  </div>
+  <div class="twocol">
+   <div><h3>Quality findings</h3><div id="qualitySummary" class="muted">Upload data and run a scan.</div></div>
+   <div><h3>Correction rules</h3>
+    <div class="checklist">
+     <label><input type="checkbox" id="trimRule" checked> Trim leading/trailing spaces</label>
+     <label><input type="checkbox" id="blankRule" checked> Convert empty strings to missing</label>
+     <label><input type="checkbox" id="dedupeRule"> Remove exact duplicate rows</label>
+    </div>
+    <p class="tiny">Rules are previewed before they are applied. No automatic rule changes conflicting IDs or guesses replacement values.</p>
+    <div class="controls"><button id="previewRules" disabled>Preview rules</button><button id="applyRules" class="primary" disabled>Apply preview</button></div>
+    <div id="rulePreview" class="tiny">No preview prepared.</div>
+   </div>
+  </div>
+  <h3>Cleaning impact</h3><div class="controls"><label>Numeric measure <select id="impactField"></select></label></div><div id="impactOutput" class="tablewrap">Choose a measure and preview the cleaning rules.</div>
+  <h3 style="margin-top:18px">Finding details</h3>
+  <div class="tablewrap" id="findingsTable"><div class="empty">No scan results yet.</div></div>
+  <p class="tiny">Invalid values are assessed against each column's selected analysis type. Duplicate IDs with different row contents are reported as conflicts for manual review.</p>
+ </section>
+
+ <section id="statistics" class="tabpane panel">
+  <div class="sectionhead"><h2>Descriptive statistics</h2><span class="badge">T4</span></div>
+  <div class="controls"><label>Numeric column <select id="statsColumn" disabled><option>Select numeric column…</option></select></label><span class="tiny">Population standard deviation is used.</span></div>
+  <div id="statsOutput" class="muted">Upload data and select a numeric column.</div>
+ </section>
+
+ <section id="outliers" class="tabpane panel">
+  <div class="sectionhead"><h2>Charts & IQR outlier analysis</h2><span class="badge">T5</span></div>
+  <div class="controls"><label>Numeric column <select id="outlierColumn" disabled><option>Select numeric column…</option></select></label></div>
+  <p class="tiny">Quartiles use the inclusive linear-interpolation method (equivalent to QUARTILE.INC). Fences are calculated once from all valid values and reused when comparing the full data with the in-fence subset.</p>
+  <div class="twocol">
+   <div><h3>Distribution</h3><canvas id="histCanvas" width="800" height="300"></canvas></div>
+   <div><h3>Box-and-whisker summary</h3><canvas id="boxCanvas" width="800" height="300"></canvas></div>
+  </div>
+  <div id="outlierOutput" style="margin-top:14px" class="muted">Select a numeric column.</div>
+ </section>
+
+ <section id="explore" class="tabpane panel">
+ <h2>Explore matching records</h2><p id="exploreScope">Upload a CSV to begin.</p>
+ <div class="controls"><label>Analysis <select id="analysisMode"><option>Frequency</option><option>Group summary</option><option>Monthly trend</option><option>Correlation matrix</option></select></label>
+ <label>Group or date field <select id="group"></select></label><label hidden>Measure <select id="measure"></select></label></div>
+ <div class="tablewrap" id="analysisResult"></div></section>
+ <section id="advanced" class="tabpane panel">
+ <div class="sectionhead"><h2>Advanced analysis</h2><span class="badge" id="advancedScope">Upload a CSV</span></div>
+ <div class="controls"><label>Analysis <select id="advancedMode"><option value="compare">Compare two groups</option><option value="pivot">Pivot table</option><option value="phrases">Words and phrases</option><option value="join">Match two files</option></select></label></div>
+ <div id="advancedControls">
+ <div data-module="compare"><p>Choose one field and value for each group. Both groups use the active Records filters and can overlap.</p>
+ <div class="controls"><label>Group A field <select id="fieldA"></select></label><label>A value <select id="valueA"></select></label></div>
+ <div class="controls"><label>Group B field <select id="fieldB"></select></label><label>B value <select id="valueB"></select></label></div>
+ <label>Numeric measure <select id="compMeasure"></select></label></div>
+ <div data-module="pivot" hidden><div class="controls"><label>Rows <select id="pivotRow"></select></label><label>Columns <select id="pivotColumn"></select></label><label>Show <select id="pivotOp"><option>Count</option><option>Row share</option><option>Total</option></select></label><label>Measure for totals <select id="pivotMeasure"></select></label></div></div>
+ <div data-module="phrases" hidden><div class="controls"><label>Text field <select id="phraseField"></select></label><label>Words per phrase <select id="phraseSize"><option>1</option><option>2</option><option>3</option></select></label><label>Contains <input id="phraseSearch" type="search"></label></div><p class="tiny">Counts ignore case and treat punctuation as word boundaries. Each record is counted once per distinct phrase.</p></div>
+ <div data-module="join" hidden><div class="controls"><label>Secondary CSV <input id="secondFile" type="file" accept=".csv,text/csv"></label><span id="secondInfo"></span></div><div class="controls"><label>Primary key <select id="leftKey"></select></label><label>Secondary key <select id="rightKey"></select></label></div></div></div>
+ <div class="controls"><button class="primary" id="runAdvanced" disabled>Run analysis</button></div><div class="tablewrap" id="advancedOutput" aria-live="polite"></div>
+ </section>
+ <section id="export" class="tabpane panel">
+  <div class="sectionhead"><h2>Export & change history</h2><span class="badge">T6</span></div>
+  <p>Export produces a CSV from the current working copy. Exact duplicate rows are removed from the export to ensure record uniqueness. Conflicting IDs must be resolved manually before export. The source upload is never overwritten.</p>
+  <div id="exportReadiness" class="muted">Upload a CSV to inspect export readiness.</div>
+  <div class="controls"><button id="exportBtn2" class="primary" disabled>Export cleaned CSV</button><button id="logBtn2" disabled>Export change log</button></div>
+  <h3>Change log</h3>
+  <div class="tablewrap" id="logTable"><div class="empty">No changes recorded.</div></div>
+ </section>
+</main>
+<footer>Far Too Curious • TGF Shipboard Analytical Systems • Local browser processing</footer>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+let headers=[], originalRows=[], rows=[], types={}, suggested={}, changes=[], findings=[], preview=null, page=0, sortState={col:null,dir:1};
+const esc = v => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isBlank = v => v===null || v===undefined || String(v).trim()==="";
+const conditions = [];
+let secondary=null;
+function tableOf(labels,records){
+ const table=document.createElement("table"),head=table.createTHead().insertRow();
+ for(const label of labels){const th=document.createElement("th");th.textContent=label;head.append(th);}
+ const body=table.createTBody();
+ for(const record of records){const tr=body.insertRow();for(const value of record)tr.insertCell().textContent=value??"—";}
+ return table;
+}
+function profile(data,col){
+ const nums=data.map(row=>numberValue(row[col])).filter(Number.isFinite);
+ const missing=data.filter(row=>isBlank(row[col])).length;
+ return [data.length,missing,data.length-missing-nums.length,nums.length,nums.length?nums.reduce((sum,x)=>sum+x,0):null,mean(nums),median(nums)];
+}
+const profileLabels=["Records","Blank measures","Invalid measures","Numeric values","Total","Mean","Median"];
+function populateValues(side){
+ const field=$("field"+side).value,select=$("value"+side),prior=select.value,same=select.dataset.field===field;select.dataset.field=field;
+ const values=[...new Set(filteredRows().map(row=>String(row[field]??"")))].sort((a,b)=>a.localeCompare(b));
+ select.replaceChildren();
+ if(!field)return;
+ values.forEach(v=>select.add(new Option(v||"(empty)",v)));
+ if(same&&values.includes(prior))select.value=prior;
+ else if(side==="B"&&$("fieldA").value===field&&values.length>1)select.selectedIndex=1;
+}
+function compareGroups(){
+ const metric=$("compMeasure").value,data=filteredRows();
+ if(!metric||!$("fieldA").value||!$("fieldB").value)return "Choose both group fields and a numeric measure.";
+ const summary=["A","B"].map(side=>profile(data.filter(r=>String(r[$("field"+side).value]??"")===$("value"+side).value),metric));
+ return tableOf(["Measure","Group A","Group B","B − A","Change from A"],profileLabels.map((label,i)=>{
+  const a=summary[0][i],b=summary[1][i],diff=a===null||b===null?null:b-a;
+  return [label,fmt(a),fmt(b),fmt(diff),diff===null||a===0?"—":fmt(100*diff/a)+"%"];
+ }));
+}
+function pivot(){
+ const rowKey=$("pivotRow").value,colKey=$("pivotColumn").value,op=$("pivotOp").value,metric=$("pivotMeasure").value;
+ if(!rowKey||!colKey||(op==="Total"&&!metric))return "Choose the row and column fields, plus a measure for totals.";
+ const groups=new Map(),columns=new Set();
+ for(const row of filteredRows()){
+  const r=row[rowKey]??"",c=row[colKey]??"";columns.add(c);
+  if(!groups.has(r))groups.set(r,new Map());
+  const group=groups.get(r),value=op==="Total"?numberValue(row[metric]):1;
+  if(Number.isFinite(value))group.set(c,(group.get(c)??0)+value);
+ }
+ const cols=[...columns].sort(),entries=[...groups].sort(([a],[b])=>a.localeCompare(b));
+ if(cols.length*entries.length>50000)return "This pivot has over 50,000 cells. Narrow the Records filters or choose fields with fewer distinct values.";
+ return tableOf([rowKey,...cols.map(c=>c||"(empty)"),"Row total"],entries.map(([r,group])=>{
+  const sum=[...group.values()].reduce((a,b)=>a+b,0);
+  const format=(v)=>op==="Row share"?fmt(100*v/sum)+"%":fmt(v);
+  return [r||"(empty)",...cols.map(c=>format(group.get(c)??(op==="Total"?null:0))),format(group.size?sum:null)];
+ }));
+}
+function tokens(text){
+ return String(text??"").normalize("NFKC").toLowerCase().match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)??[];
+}
+function phrases(){
+ const col=$("phraseField").value,n=Number($("phraseSize").value);
+ if(!col)return "Choose a text field.";
+ const data=filteredRows(),counts=new Map();
+ for(const row of data){
+  const words=tokens(row[col]),seen=new Set();
+  for(let i=0;i<=words.length-n;i++){
+   const phrase=words.slice(i,i+n).join(" ");
+   if(!counts.has(phrase))counts.set(phrase,{mentions:0,records:0});
+   const count=counts.get(phrase);count.mentions++;
+   if(!seen.has(phrase)){count.records++;seen.add(phrase);}
+  }
+ }
+ const query=$("phraseSearch").value.toLowerCase().trim();
+ const sorted=[...counts].filter(([p])=>p.includes(query)).sort((a,b)=>b[1].records-a[1].records||b[1].mentions-a[1].mentions||a[0].localeCompare(b[0]));
+ const best=sorted.slice(0,200);
+ const wrap=document.createElement("div"),hint=document.createElement("p");
+ hint.textContent="Showing "+best.length+" of "+sorted.length+" matching phrases. Select a phrase to read its records.";
+ const context=document.createElement("div"),table=tableOf(["Phrase","Mentions","Records"],best.map(([p,v])=>[p,v.mentions,v.records]));
+ best.forEach(([p],i)=>{
+  const cell=table.tBodies[0].rows[i].cells[0],button=document.createElement("button");
+  button.textContent=p;cell.replaceChildren(button);
+  button.onclick=()=>{
+   const matches=data.filter(row=>(" "+tokens(row[col]).join(" ")+" ").includes(" "+p+" "));
+   context.replaceChildren(tableOf(["Working row",col],matches.map(row=>[rows.indexOf(row)+1,row[col]])));
+   context.scrollIntoView({block:"nearest"});
+  };
+ });
+ wrap.append(hint,context,table);return wrap;
+}
+function indexKeys(data,key){
+ const map=new Map();
+ for(const row of data){const v=String(row[key]??"");if(isBlank(v))continue;
+  if(!map.has(v))map.set(v,[]);map.get(v).push(row);
+ }return map;
+}
+function joinPreview(){
+ const left=filteredRows(),right=secondary?.rows,lk=$("leftKey").value,rk=$("rightKey").value;
+ if(!right||!lk||!rk)return "Load a second CSV and select its matching fields.";
+ const a=indexKeys(left,lk),b=indexKeys(right,rk);
+ let leftMatched=0,rightMatched=0,pairs=0,many=0;
+ for(const [k,group] of a){const other=b.get(k);if(!other)continue;
+  leftMatched+=group.length;rightMatched+=other.length;pairs+=group.length*other.length;if(group.length>1&&other.length>1)many++;
+ }
+ const repeats=m=>[...m.values()].filter(g=>g.length>1).length;
+ const wrap=document.createElement("div");
+ wrap.append(tableOf(["Measure","Primary","Secondary"],[["Rows",left.length,right.length],["Matched rows",leftMatched,rightMatched],["Unmatched rows (including blank keys)",left.length-leftMatched,right.length-rightMatched],["Repeated nonblank keys",repeats(a),repeats(b)]]));
+ const note=document.createElement("p");note.textContent="Inner join: "+pairs+" output rows. Keys repeated on both sides: "+many+". Exact, case-sensitive matching. Blank keys are excluded.";wrap.append(note);
+ const button=document.createElement("button");button.textContent="Export matched pairs";button.disabled=!pairs||pairs>100000;
+ if(pairs>100000)note.append(" Narrow the filters to export up to 100,000 pairs.");
+ button.onclick=()=>{
+  const hs=[...headers.map(h=>"Primary."+h),...secondary.headers.map(h=>"Secondary."+h)],joined=[];
+  for(const row of left){for(const other of b.get(String(row[lk]??""))??[]){
+   joined.push(Object.fromEntries([...headers.map(h=>["Primary."+h,row[h]]),...secondary.headers.map(h=>["Secondary."+h,other[h]])]));
+  }}
+  download("matched_pairs.csv",csvString(hs,joined));
+ };wrap.append(button);return wrap;
+}
+function impact(){
+ const col=$("impactField").value;
+ if(!preview||!col){$("impactOutput").textContent="Choose a measure and preview the cleaning rules.";return;}
+ const a=profile(rows,col),b=profile(preview.candidate,col);
+ $("impactOutput").replaceChildren(tableOf(["Measure","Working copy","After proposed rules"],profileLabels.map((label,i)=>[label,fmt(a[i]),fmt(b[i])])));
+}
+const advancedFns={compare:compareGroups,pivot,phrases,join:joinPreview};
+function clearAdvanced(){
+ $("advancedOutput").replaceChildren();$("advancedScope").textContent=filteredRows().length+" matching primary records";
+}
+function mountAdvanced(){
+ for(const id of ["fieldA","fieldB","pivotRow","pivotColumn","phraseField","leftKey"])keepSelection(id,headers,"Choose field…");
+ for(const id of ["impactField","compMeasure","pivotMeasure"])keepSelection(id,headers.filter(h=>types[h]==="number"),"Choose measure…");
+ populateValues("A");populateValues("B");clearAdvanced();
+}
+function selectAdvanced(){
+ const mode=$("advancedMode").value;
+ document.querySelectorAll("[data-module]").forEach(el=>el.hidden=el.dataset.module!==mode);
+ clearAdvanced();
+}
+$("advancedMode").onchange=selectAdvanced;
+$("runAdvanced").onclick=()=>{const output=advancedFns[$("advancedMode").value]();$("advancedOutput").replaceChildren(output);};
+$("advancedControls").addEventListener("input",clearAdvanced);
+for(const side of ["A","B"])$("field"+side).onchange=()=>populateValues(side);
+$("impactField").onchange=impact;
+let secondaryRequest=0;
+$("secondFile").onchange=async event=>{
+ const file=event.target.files[0];if(!file)return;
+ const request=++secondaryRequest;
+ try{
+  const parsed=parseCSV((await file.text()).replace(/^\uFEFF/,""));
+  if(request!==secondaryRequest)return;
+  if(!parsed.headers.length)throw Error("Missing headers.");
+  secondary=parsed;fillSelect($("rightKey"),parsed.headers,"Choose matching field…");
+  $("secondInfo").textContent=file.name+" · "+parsed.rows.length+" rows";
+ }catch(err){if(request===secondaryRequest){secondary=null;$("rightKey").replaceChildren();$("secondInfo").textContent=err.message;}}
+ clearAdvanced();event.target.value="";
+};
+
+function numberValue(value) {
+ const s=String(value??"").trim();
+ if (!/^[+-]?(?:(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(s)) return NaN;
+ return Number(s.replace(/,/g,""));
+}
+function matches(row,{column,op,value}) {
+ const cell=String(row[column]??"");
+ if(op==="blank") return isBlank(cell);
+ if(op==="equals") return cell.toLowerCase()===value.toLowerCase();
+ if(op==="contains") return cell.toLowerCase().includes(value.toLowerCase());
+ const n=numberValue(cell), target=numberValue(value);
+ return op==="at least" ? n>=target : n<=target;
+}
+function refreshConditions() {
+ const area=$("conditions"); area.replaceChildren();
+ conditions.forEach((rule,index)=>{
+  const button=document.createElement("button");
+  button.textContent=rule.column+" "+rule.op+" "+rule.value+" ×";
+  button.title="Remove condition";
+  button.onclick=()=>{conditions.splice(index,1);refreshConditions();};
+  area.append(button);
+ });
+ page=0;renderRecords();
+}
+$("addCondition").onclick=()=>{
+ const column=$("conditionColumn").value,op=$("operator").value,value=$("operand").value;
+ if(!column)return;
+ if(["at least","at most"].includes(op)&&!Number.isFinite(numberValue(value)))return alert("Enter a numeric comparison value.");
+ conditions.push({column,op,value:op==="blank"?"":value});refreshConditions();
+};
+$("subset").onclick=()=>download("filtered_records.csv",csvString(headers,filteredRows()));
+function keepSelection(id,choices,prompt) {
+ const el=$(id),previous=el.value;
+ fillSelect(el,choices,prompt);
+ el.disabled=!choices.length;
+ if(choices.includes(previous))el.value=previous;
+}
+function syncAnalysisFields() {
+ const nums=headers.filter(h=>types[h]==="number");
+ for(const id of ["statsColumn","outlierColumn","measure"])keepSelection(id,nums,"Select numeric field…");
+ keepSelection("group",headers,"Select a field…");
+ keepSelection("conditionColumn",headers,"Select a field…");
+}
+function showTable(labels,values) {
+ const table=document.createElement("table"),head=table.createTHead().insertRow();
+ labels.forEach(label=>{const cell=document.createElement("th");cell.textContent=label;head.append(cell);});
+ const body=table.createTBody();
+ values.forEach(row=>{const tr=body.insertRow();row.forEach(value=>tr.insertCell().textContent=value);});
+ $("analysisResult").replaceChildren(table);
+}
+function correlation(data,x,y) {
+ let n=0,mx=0,my=0,xx=0,yy=0,xy=0;
+ for(const row of data){
+  const a=numberValue(row[x]),b=numberValue(row[y]);
+  if(!Number.isFinite(a)||!Number.isFinite(b))continue;
+  n++;const dx=a-mx,dy=b-my;
+  mx+=dx/n;my+=dy/n;xx+=dx*(a-mx);yy+=dy*(b-my);xy+=dx*(b-my);
+ }
+ return (n>=2&&xx>0&&yy>0?fmt(xy/Math.sqrt(xx*yy)):"—")+" (n="+n+")";
+}
+function explore() {
+ const data=filteredRows(),mode=$("analysisMode").value,key=$("group").value,metric=$("measure").value;
+ const frequency=mode==="Frequency",monthly=mode==="Monthly trend",matrix=mode==="Correlation matrix";
+ $("group").parentElement.hidden=matrix;$("measure").parentElement.hidden=frequency||matrix;
+ const result=$("analysisResult");
+ if(matrix){
+  const nums=headers.filter(h=>types[h]==="number");
+  if(!nums.length){result.textContent="Choose a numeric analysis type in Records.";return;}
+  showTable(["Pearson r",...nums],nums.map(x=>[x,...nums.map(y=>correlation(data,x,y))]));return;
+ }
+ if(!key||(!frequency&&!metric)){result.textContent=monthly?"Select a date field and a numeric measure.":"Choose the fields to summarise.";return;}
+ const groups=new Map();let excluded=0;
+ for(const row of data){
+  let group=row[key];
+  if(monthly){
+   const date=String(group??"").trim();
+   const instant=new Date(date+"T00:00:00Z");
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(+instant)||instant.toISOString().slice(0,10)!==date){excluded++;continue;}
+   group=date.slice(0,7);
+  }
+  if(isBlank(group))group=null;
+  if(!groups.has(group))groups.set(group,{count:0,sum:0,valid:0});
+  const bucket=groups.get(group);bucket.count++;
+  const value=numberValue(row[metric]);
+  if(Number.isFinite(value)){bucket.sum+=value;bucket.valid++;}
+ }
+ const entries=[...groups];
+ if(frequency)entries.sort((a,b)=>b[1].count-a[1].count);
+ else entries.sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
+ showTable(frequency?[key,"Records","Share"]:[monthly?"Month":key,"Records","Numeric values","Total","Mean"],entries.map(([k,b])=>frequency?[k??"(blank)",b.count,fmt(100*b.count/data.length)+"%"]:[k??"(blank)",b.count,b.valid,b.valid?fmt(b.sum):"—",b.valid?fmt(b.sum/b.valid):"—"]));
+ if(monthly)result.append("Dates use YYYY-MM-DD. Records without a valid date: "+excluded+".");
+}
+for(const id of ["group","measure","analysisMode"])$(id).onchange=explore;
+function discardPreview(){
+ $("impactOutput").textContent="Choose a measure and preview the cleaning rules.";
+ preview=null;$("applyRules").disabled=true;$("rulePreview").textContent="Preview the selected rules before applying.";
+}
+for(const id of ["trimRule","blankRule","dedupeRule"])$(id).onchange=discardPreview;
+
+function parseCSV(text){
+ const out=[];let row=[],field="",quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++;}else if(c==='"')quoted=false;else field+=c;}
+  else if(c==='"')quoted=true;
+  else if(c===","){row.push(field);field="";}
+  else if(c==="\n"){row.push(field.replace(/\r$/,""));out.push(row);row=[];field="";}
+  else field+=c;
+ }
+ if(quoted)throw Error("Unclosed quoted field.");
+ if(field.length||row.length){row.push(field.replace(/\r$/,""));out.push(row);}
+ while(out.length&&out[out.length-1].every(x=>x===""))out.pop();
+ if(!out.length)return {headers:[],rows:[]};
+ const hs=out[0].map((h,i)=>h.trim()||`Column_${i+1}`);
+ if(new Set(hs).size!==hs.length)throw Error("Give each column a unique header before importing.");
+ if(out.slice(1).some(r=>r.length>hs.length))throw Error("A record has more fields than the header.");
+ const data=out.slice(1).filter(r=>!(r.length===1&&r[0]==="")).map(r=>{const o=Object.create(null);hs.forEach((h,i)=>o[h]=r[i]??"");return o;});
+ return {headers:hs,rows:data};
+}
+function csvString(hs,data){const q=v=>{let s=String(v??"");return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};return [hs.map(q).join(","),...data.map(r=>hs.map(h=>q(r[h])).join(","))].join("\r\n");}
+function download(name,content,type="text/csv;charset=utf-8"){const blob=new Blob(["\ufeff",content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
+function clone(x){return JSON.parse(JSON.stringify(x));}
+function inferType(values){
+ const v=values.filter(x=>!isBlank(x));if(!v.length)return "text";
+ const num=v.filter(x=>Number.isFinite(numberValue(x))).length;
+ const date=v.filter(x=>!Number.isNaN(Date.parse(x))&&/[0-9]/.test(x)).length;
+ const bool=v.filter(x=>/^(true|false|yes|no)$/i.test(String(x).trim())).length;
+ if(num/v.length>=.9)return "number";
+ if(date/v.length>=.9)return "date";
+ if(bool/v.length>=.9)return "boolean";
+ return "text";
+}
+function setStatus(s){$("status").textContent=s;}
+function logChange(rowIndex,col,oldV,newV,method,reason){changes.push({timestamp:new Date().toISOString(),row:rowIndex+1,column:col,originalValue:oldV,newValue:newV,method,reason});}
+function activeRows(){return rows;}
+function filteredRows(){
+ let data=rows.slice(),q=$("searchInput").value.toLowerCase(),fc=$("filterColumn").value,fv=$("filterValue").value.toLowerCase();
+ if(q)data=data.filter(r=>headers.some(h=>String(r[h]??"").toLowerCase().includes(q)));
+ if(fc&&fv)data=data.filter(r=>String(r[fc]??"").toLowerCase().includes(fv));
+ if(conditions.length)data=data.filter(r=>conditions.every(rule=>matches(r,rule)));
+ if(sortState.col)data.sort((a,b)=>{let x=a[sortState.col]??"",y=b[sortState.col]??"",nx=Number(x),ny=Number(y);let cmp=Number.isFinite(nx)&&Number.isFinite(ny)?nx-ny:String(x).localeCompare(String(y),undefined,{numeric:true,sensitivity:"base"});return cmp*sortState.dir;});
+ return data;
+}
+function renderMetrics(){
+ $("rowCount").textContent=rows.length.toLocaleString();$("colCount").textContent=headers.length.toLocaleString();
+ let miss=0;rows.forEach(r=>headers.forEach(h=>{if(isBlank(r[h]))miss++;}));
+ $("missingCount").textContent=miss.toLocaleString();$("duplicateCount").textContent=countExactDuplicates(rows).toLocaleString();
+ $("recordBadge").textContent=`${rows.length.toLocaleString()} records • ${headers.length} fields`;
+}
+function countExactDuplicates(data){const seen=new Set();let n=0;data.forEach(r=>{const k=JSON.stringify(headers.map(h=>r[h]??""));if(seen.has(k))n++;else seen.add(k);});return n;}
+function renderSchema(){
+ const body=$("schemaTable").querySelector("tbody");body.innerHTML="";
+ headers.forEach(h=>{const tr=document.createElement("tr"),non=rows.filter(r=>!isBlank(r[h])).length;
+ const td1=document.createElement("td");td1.textContent=h;const td2=document.createElement("td");td2.textContent=suggested[h];
+ const td3=document.createElement("td"),sel=document.createElement("select");["text","number","date","boolean","id"].forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;if(types[h]===t)o.selected=true;sel.appendChild(o);});
+ sel.addEventListener("change",()=>{types[h]=sel.value;renderAll();scanQuality();});td3.appendChild(sel);
+ const td4=document.createElement("td");td4.textContent=`${non}/${rows.length}`;tr.append(td1,td2,td3,td4);body.appendChild(tr);});
+}
+function fillSelect(el,opts,placeholder){el.innerHTML="";const first=document.createElement("option");first.value="";first.textContent=placeholder;el.appendChild(first);opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;el.appendChild(o);});}
+function renderRecords(){
+ clearAdvanced();populateValues("A");populateValues("B");
+ const data=filteredRows(),size=Number($("pageSize").value),pages=Math.max(1,Math.ceil(data.length/size));page=Math.min(page,pages-1);
+ const slice=data.slice(page*size,(page+1)*size),wrap=$("dataTableWrap");
+ if(!slice.length){wrap.innerHTML='<div class="empty">No records match the current search/filter.</div>';}
+ else{
+  const table=document.createElement("table"),thead=document.createElement("thead"),hr=document.createElement("tr");
+  headers.forEach(h=>{const th=document.createElement("th"),b=document.createElement("button");b.textContent=h+(sortState.col===h?(sortState.dir===1?" ↑":" ↓"):"");b.addEventListener("click",()=>{if(sortState.col===h)sortState.dir*=-1;else{sortState.col=h;sortState.dir=1;}renderRecords();});th.appendChild(b);hr.appendChild(th);});thead.appendChild(hr);table.appendChild(thead);
+  const tb=document.createElement("tbody");slice.forEach(r=>{const tr=document.createElement("tr"),realIndex=rows.indexOf(r);headers.forEach(h=>{const td=document.createElement("td");td.textContent=r[h]??"";td.contentEditable="true";td.title="Click to edit; changes are recorded.";td.addEventListener("blur",()=>{const nv=td.textContent,ov=rows[realIndex][h]??"";if(nv!==ov){const reason=$("editReason").value.trim()||prompt("Reason for this correction?");if(!reason?.trim()){td.textContent=ov;return;}discardPreview();rows[realIndex][h]=nv;logChange(realIndex,h,ov,nv,"Manual edit",reason.trim());renderAll();scanQuality();}});tr.appendChild(td);});tb.appendChild(tr);});table.appendChild(tb);wrap.replaceChildren(table);
+ }
+ $("exploreScope").textContent=data.length+" of "+rows.length+" working records match the filters in Records.";if($("explore").classList.contains("active"))explore();
+ $("pageInfo").textContent=`Page ${page+1} of ${pages} • ${data.length.toLocaleString()} matching records`;
+ $("prevPage").disabled=page<=0;$("nextPage").disabled=page>=pages-1;
+}
+function validValue(v,t){if(isBlank(v))return true;if(t==="number")return Number.isFinite(numberValue(v));if(t==="date")return !Number.isNaN(Date.parse(v));if(t==="boolean")return /^(true|false|yes|no)$/i.test(String(v).trim());return true;}
+function scanQuality(){
+ findings=[];let missing=0,invalid=0;
+ rows.forEach((r,i)=>headers.forEach(h=>{const v=r[h];if(isBlank(v)){missing++;findings.push({type:"Missing",row:i+1,column:h,value:"",detail:"Blank or missing value"});}
+ else if(!validValue(v,types[h])){invalid++;findings.push({type:"Invalid",row:i+1,column:h,value:String(v),detail:`Does not match selected ${types[h]} type`});}}));
+ const seen=new Map();rows.forEach((r,i)=>{const k=JSON.stringify(headers.map(h=>r[h]??""));if(seen.has(k))findings.push({type:"Exact duplicate",row:i+1,column:"—",value:"",detail:`Same as row ${seen.get(k)}`});else seen.set(k,i+1);});
+ const id=$("idColumn").value;if(id){const groups=new Map();rows.forEach((r,i)=>{const v=String(r[id]??"").trim();if(!v)return;if(!groups.has(v))groups.set(v,[]);groups.get(v).push(i);});
+  groups.forEach((idxs,key)=>{if(idxs.length>1){const unique=new Set(idxs.map(i=>JSON.stringify(headers.filter(h=>h!==id).map(h=>rows[i][h]??""))));if(unique.size>1)findings.push({type:"Conflicting ID",row:idxs.map(i=>i+1).join(", "),column:id,value:key,detail:`ID appears ${idxs.length} times with different record contents`});else findings.push({type:"Repeated ID",row:idxs.map(i=>i+1).join(", "),column:id,value:key,detail:`ID repeats; records are otherwise identical`});}});
+ }
+ const conflicts=findings.filter(f=>f.type==="Conflicting ID").length,dups=findings.filter(f=>f.type==="Exact duplicate").length;
+ $("qualitySummary").innerHTML=`<div class="grid" style="grid-template-columns:repeat(2,minmax(100px,1fr));margin:0"><div class="metric"><small>Missing cells</small><strong>${missing}</strong></div><div class="metric"><small>Invalid values</small><strong>${invalid}</strong></div><div class="metric"><small>Exact duplicate rows</small><strong>${dups}</strong></div><div class="metric"><small>Conflicting ID groups</small><strong>${conflicts}</strong></div></div>`;
+ const table=document.createElement("table");table.innerHTML="<thead><tr><th>Finding</th><th>Row</th><th>Column</th><th>Value</th><th>Detail</th></tr></thead>";
+ const tb=document.createElement("tbody");findings.slice(0,1000).forEach(f=>{const tr=document.createElement("tr");[f.type,f.row,f.column,f.value,f.detail].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.appendChild(td);});tb.appendChild(tr);});table.appendChild(tb);$("findingsTable").replaceChildren(table);
+ setStatus(`Quality scan complete • ${findings.length} findings`);
+}
+function prepareRules(){
+ let candidate=clone(rows),log=[],trim=$("trimRule").checked,blank=$("blankRule").checked,dedupe=$("dedupeRule").checked;
+ candidate.forEach((r,i)=>headers.forEach(h=>{let old=r[h],nv=old,method="",reason="";
+  if(trim&&typeof nv==="string"&&nv!==nv.trim()){nv=nv.trim();method="Automatic rule";reason="Trim leading/trailing whitespace";}
+  if(blank&&typeof nv==="string"&&nv===""){nv=null;method="Automatic rule";reason="Normalise empty string to a missing value";}
+  if(nv!==old){r[h]=nv;log.push({row:i+1,column:h,originalValue:old,newValue:nv,method,reason});}
+ }));
+ let removed=0;if(dedupe){const seen=new Set();candidate=candidate.filter((r,i)=>{const k=JSON.stringify(headers.map(h=>r[h]??""));if(seen.has(k)){removed++;log.push({row:i+1,column:"*",originalValue:JSON.stringify(r),newValue:"Removed",method:"Automatic rule",reason:"Remove exact duplicate row"});return false;}seen.add(k);return true;});}
+ preview={candidate,log};$("rulePreview").innerHTML=`Preview ready: ${candidate.length} rows (${rows.length-candidate.length} row(s) removed), ${log.length} logged change(s). <br>No changes have been applied yet.`;
+ if(log.length){const details=document.createElement("details"),summary=document.createElement("summary"),list=document.createElement("ol");summary.textContent="Inspect proposed changes";details.append(summary,list);log.forEach(c=>{const li=document.createElement("li");li.textContent="Row "+c.row+" · "+c.column+" · "+JSON.stringify(c.originalValue)+" → "+JSON.stringify(c.newValue);list.append(li);});$("rulePreview").append(details);}
+ $("applyRules").disabled=log.length===0;impact();
+}
+function applyPreview(){if(!preview)return;$("impactOutput").textContent="Preview rules to compare proposed changes.";const oldCount=rows.length;rows=preview.candidate;preview.log.forEach(c=>changes.push({...c,timestamp:new Date().toISOString()}));const n=preview.log.length;preview=null;$("rulePreview").textContent=`Applied ${n} logged change(s). ${oldCount-rows.length} row(s) removed.`;$("applyRules").disabled=true;renderAll();scanQuality();}
+function numericValues(col){return rows.map(r=>numberValue(r[col])).filter((n,i)=>!isBlank(rows[i][col])&&Number.isFinite(n));}
+function mean(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:null;}
+function median(a){if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function mode(a){if(!a.length)return [];const counts=new Map();a.forEach(x=>counts.set(x,(counts.get(x)||0)+1));const max=Math.max(...counts.values());return max===1?[]:[...counts].filter(x=>x[1]===max).map(x=>x[0]).sort((x,y)=>x-y);}
+function sdPop(a){if(!a.length)return null;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/a.length);}
+function fmt(x){return x===null||x===undefined?"—":Number(x).toLocaleString(undefined,{maximumFractionDigits:4});}
+function renderStats(){const col=$("statsColumn").value;if(!col){$("statsOutput").textContent="Select a numeric column.";return;}const a=numericValues(col);if(!a.length){$("statsOutput").textContent="No valid numeric values in this column.";return;}
+ const vals=[["Count",a.length],["Total",a.reduce((s,x)=>s+x,0)],["Mean",mean(a)],["Median",median(a)],["Mode",mode(a).length?mode(a).join(", "):"No repeated mode"],["Minimum",Math.min(...a)],["Maximum",Math.max(...a)],["Range",Math.max(...a)-Math.min(...a)],["Population standard deviation",sdPop(a)]];
+ const t=document.createElement("table");t.className="statstable";t.innerHTML="<thead><tr><th>Measure</th><th>Result</th></tr></thead>";const tb=document.createElement("tbody");vals.forEach(([k,v])=>{const tr=document.createElement("tr"),a=document.createElement("td"),b=document.createElement("td");a.textContent=k;b.textContent=typeof v==="number"?fmt(v):v;tr.append(a,b);tb.appendChild(tr);});t.appendChild(tb);$("statsOutput").replaceChildren(t);
+}
+function quantileInc(a,p){const s=[...a].sort((x,y)=>x-y);if(!s.length)return null;const pos=(s.length-1)*p,lo=Math.floor(pos),hi=Math.ceil(pos);return s[lo]+(s[hi]-s[lo])*(pos-lo);}
+function drawHistogram(a){const c=$("histCanvas"),ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0b1525";ctx.fillRect(0,0,w,h);if(!a.length)return;const min=Math.min(...a),max=Math.max(...a),bins=Math.min(20,Math.max(5,Math.ceil(Math.sqrt(a.length)))),counts=Array(bins).fill(0);a.forEach(v=>{let i=max===min?0:Math.min(bins-1,Math.floor((v-min)/(max-min)*bins));counts[i]++;});const top=Math.max(...counts),left=48,bottom=h-35,plotH=h-65,barW=(w-left-20)/bins;ctx.strokeStyle="#425773";ctx.beginPath();ctx.moveTo(left,15);ctx.lineTo(left,bottom);ctx.lineTo(w-12,bottom);ctx.stroke();counts.forEach((n,i)=>{let bh=n/top*(plotH-8),x=left+i*barW;ctx.fillStyle="#65d6c4";ctx.fillRect(x+2,bottom-bh,Math.max(1,barW-4),bh);});ctx.fillStyle="#a9bad0";ctx.font="14px Arial";ctx.fillText(fmt(min),left,bottom+22);ctx.fillText(fmt(max),w-75,bottom+22);ctx.fillText("Frequency",8,16);}
+function drawBox(a,q1,med,q3,lo,hi){const c=$("boxCanvas"),ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0b1525";ctx.fillRect(0,0,w,h);if(!a.length)return;const min=Math.min(...a),max=Math.max(...a),span=max-min||1,x=v=>50+(v-min)/span*(w-100),y=145;ctx.strokeStyle="#9fb0c8";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(lo),y);ctx.lineTo(x(hi),y);ctx.moveTo(x(lo),y-18);ctx.lineTo(x(lo),y+18);ctx.moveTo(x(hi),y-18);ctx.lineTo(x(hi),y+18);ctx.stroke();ctx.fillStyle="#235b59";ctx.fillRect(x(q1),y-35,Math.max(2,x(q3)-x(q1)),70);ctx.strokeStyle="#65d6c4";ctx.strokeRect(x(q1),y-35,Math.max(2,x(q3)-x(q1)),70);ctx.beginPath();ctx.moveTo(x(med),y-35);ctx.lineTo(x(med),y+35);ctx.stroke();ctx.fillStyle="#cbd8ea";ctx.font="13px Arial";ctx.fillText("Min",x(min)-12,205);ctx.fillText("Q1",x(q1)-10,95);ctx.fillText("Median",x(med)-25,80);ctx.fillText("Q3",x(q3)-10,95);ctx.fillText("Max",x(max)-15,205);}
+function renderOutliers(){const col=$("outlierColumn").value;drawHistogram([]);drawBox([]);if(!col){$("outlierOutput").textContent="Select a numeric column.";return;}const a=numericValues(col);if(!a.length){$("outlierOutput").textContent="No valid numeric values.";return;}const q1=quantileInc(a,.25),med=median(a),q3=quantileInc(a,.75),iqr=q3-q1,lf=q1-1.5*iqr,uf=q3+1.5*iqr,out=a.filter(v=>v<lf||v>uf),inside=a.filter(v=>v>=lf&&v<=uf),lo=Math.min(...inside),hi=Math.max(...inside);drawHistogram(a);drawBox(a,q1,med,q3,lo,hi);
+ const all=[["All valid values",a.length,mean(a),median(a),sdPop(a)],["Within the same fences",inside.length,mean(inside),median(inside),sdPop(inside)]];
+ const t=document.createElement("table");t.className="statstable";t.innerHTML="<thead><tr><th>Group</th><th>Count</th><th>Mean</th><th>Median</th><th>Population SD</th></tr></thead>";const tb=document.createElement("tbody");all.forEach(row=>{const tr=document.createElement("tr");row.forEach((v,i)=>{const td=document.createElement("td");td.textContent=i===0?v:fmt(v);tr.appendChild(td);});tb.appendChild(tr);});t.appendChild(tb);
+ $("outlierOutput").innerHTML=`<p><strong>Q1:</strong> ${fmt(q1)} &nbsp; <strong>Median:</strong> ${fmt(med)} &nbsp; <strong>Q3:</strong> ${fmt(q3)} &nbsp; <strong>IQR:</strong> ${fmt(iqr)}</p><p><strong>Lower fence:</strong> ${fmt(lf)} &nbsp; <strong>Upper fence:</strong> ${fmt(uf)} &nbsp; <strong>Outlier count:</strong> ${out.length}</p><p class="tiny">Outliers are values strictly below the lower fence or strictly above the upper fence. The comparison subset uses these same original fences; fences are not recalculated after excluding outliers.</p>`;$("outlierOutput").appendChild(t);
+}
+function renderLog(){const wrap=$("logTable");if(!changes.length){wrap.innerHTML='<div class="empty">No changes recorded.</div>';return;}const t=document.createElement("table");t.innerHTML="<thead><tr><th>Timestamp</th><th>Row</th><th>Column</th><th>Original value</th><th>New value</th><th>Method</th><th>Reason</th></tr></thead>";const tb=document.createElement("tbody");changes.forEach(c=>{const tr=document.createElement("tr");[c.timestamp,c.row,c.column,c.originalValue,c.newValue,c.method,c.reason].forEach(v=>{const td=document.createElement("td");td.textContent=v??"";tr.appendChild(td);});tb.appendChild(tr);});t.appendChild(tb);wrap.replaceChildren(t);}
+function updateExport(){const id=$("idColumn").value;let conflicts=0;if(id){const m=new Map();rows.forEach(r=>{const v=String(r[id]??"").trim();if(v){if(!m.has(v))m.set(v,[]);m.get(v).push(r);}});m.forEach(arr=>{if(arr.length>1&&new Set(arr.map(r=>JSON.stringify(headers.filter(h=>h!==id).map(h=>r[h]??"")))).size>1)conflicts++;});}
+ $("exportReadiness").innerHTML=`<p>Current working records: <strong>${rows.length}</strong>. Exact duplicate rows to remove during export: <strong>${countExactDuplicates(rows)}</strong>.</p><p>Conflicting ID groups: <strong class="${conflicts?'':'good'}">${conflicts}</strong>.</p>${conflicts?'<p class="badge bad">Resolve conflicting IDs manually before export.</p>':'<p class="badge good">No conflicting ID groups detected under the selected ID field.</p>'}`;
+ $("exportBtn").disabled=$("exportBtn2").disabled=conflicts>0||!headers.length;
+}
+function exportClean(){const id=$("idColumn").value;if(id){const groups=new Map();rows.forEach(r=>{const v=String(r[id]??"").trim();if(v){if(!groups.has(v))groups.set(v,[]);groups.get(v).push(r);}});for(const arr of groups.values())if(arr.length>1&&new Set(arr.map(r=>JSON.stringify(headers.filter(h=>h!==id).map(h=>r[h]??"")))).size>1){alert("Export paused: conflicting IDs remain. Review and manually resolve them first.");return;}}
+ const seen=new Set(),unique=[];let removed=0;rows.forEach((r,i)=>{const k=JSON.stringify(headers.map(h=>r[h]??""));if(!seen.has(k)){seen.add(k);unique.push(r);}else{removed++;changes.push({timestamp:new Date().toISOString(),row:i+1,column:"*",originalValue:JSON.stringify(r),newValue:"Excluded from export",method:"Export deduplication",reason:"Ensure exported CSV contains unique records"});}});download("cleaned_unique_records.csv",csvString(headers,unique));renderLog();setStatus(`Exported ${unique.length} unique records • ${removed} duplicate row(s) excluded`);}
+function exportLog(){const hs=["timestamp","row","column","originalValue","newValue","method","reason"];download("data_change_log.csv",csvString(hs,changes));}
+function renderAll(rebuildSchema=true){renderMetrics();if(rebuildSchema){renderSchema();syncAnalysisFields();mountAdvanced();}renderRecords();renderStats();renderOutliers();renderLog();updateExport();}
+function loadText(text,name){const parsed=parseCSV(text);if(!parsed.headers.length)throw new Error("No CSV header row found.");secondaryRequest++;secondary=null;$("rightKey").replaceChildren();$("secondInfo").textContent="";$("runAdvanced").disabled=false;conditions.length=0;$("conditions").replaceChildren();$("searchInput").value=$("filterValue").value="";sortState.col=null;page=0;discardPreview();$("subset").disabled=false;headers=parsed.headers;originalRows=clone(parsed.rows);rows=clone(parsed.rows);changes=[];findings=[];preview=null;types=Object.create(null);suggested=Object.create(null);headers.forEach(h=>{suggested[h]=inferType(rows.map(r=>r[h]));types[h]=suggested[h];});
+ const guessed=headers.find(h=>/(^id$|transaction.?id|record.?id|unique.?id)/i.test(h));fillSelect($("idColumn"),headers,"Select an ID field…");if(guessed)$("idColumn").value=guessed;
+ fillSelect($("filterColumn"),headers,"All columns");const nums=headers.filter(h=>types[h]==="number");fillSelect($("statsColumn"),nums,"Select numeric column…");fillSelect($("outlierColumn"),nums,"Select numeric column…");
+ ["searchInput","filterColumn","filterValue","clearFilter","idColumn","scanBtn","previewRules"].forEach(id=>$(id).disabled=false);
+ $("resetBtn").disabled=false;$("logBtn").disabled=$("logBtn2").disabled=false;$("exportBtn2").disabled=false;
+ setStatus(`${name} loaded • ${rows.length} rows • ${headers.length} columns`);renderAll();scanQuality();}
+$("fileInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{loadText(await f.text(),f.name);}catch(err){alert("Could not read CSV: "+err.message);}e.target.value="";});
+$("resetBtn").addEventListener("click",()=>{if(!confirm("Discard all working-copy edits and restore the originally uploaded CSV?"))return;rows=clone(originalRows);changes=[];discardPreview();renderAll();scanQuality();setStatus("Working copy restored from original upload");});
+$("searchInput").addEventListener("input",()=>{page=0;renderRecords();});$("filterColumn").addEventListener("change",()=>{page=0;renderRecords();});$("filterValue").addEventListener("input",()=>{page=0;renderRecords();});$("clearFilter").addEventListener("click",()=>{$("searchInput").value="";$("filterColumn").value="";$("filterValue").value="";conditions.length=0;refreshConditions();});
+$("pageSize").addEventListener("change",()=>{page=0;renderRecords();});$("prevPage").addEventListener("click",()=>{page--;renderRecords();});$("nextPage").addEventListener("click",()=>{page++;renderRecords();});
+$("scanBtn").addEventListener("click",scanQuality);$("previewRules").addEventListener("click",prepareRules);$("applyRules").addEventListener("click",applyPreview);
+$("statsColumn").addEventListener("change",renderStats);$("outlierColumn").addEventListener("change",renderOutliers);$("idColumn").addEventListener("change",()=>{scanQuality();updateExport();});
+$("exportBtn").addEventListener("click",exportClean);$("exportBtn2").addEventListener("click",exportClean);$("logBtn").addEventListener("click",exportLog);$("logBtn2").addEventListener("click",exportLog);
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".tabpane").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab));if(b.dataset.tab==="explore")explore();if(b.dataset.tab==="outliers")renderOutliers();}));
+})();
+</script>
+</body>
+</html>
